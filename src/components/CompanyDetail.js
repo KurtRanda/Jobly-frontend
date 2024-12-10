@@ -87,13 +87,12 @@ function CompanyDetail({ currentUser, setCurrentUser }) {
             <h3>{job.title}</h3>
             <p>Salary: {job.salary}</p>
             <p>Equity: {job.equity}</p>
-            <button
-              onClick={() => handleApply(job.id)}
-              disabled={applications.has(job.id)}
-              className="form-button"
-            >
-              {applications.has(job.id) ? "Applied" : "Apply"}
-            </button>
+              <button
+                onClick={() => handleApply(job.id)}
+                disabled={applications.has(job.id)} // Disable button if already applied
+              >
+                {applications.has(job.id) ? "Applied" : "Apply"}
+              </button>
           </li>
         ))}
       </ul>
