@@ -15,23 +15,19 @@ function CompanyDetail({ currentUser, setCurrentUser }) {
   useEffect(() => {
     async function fetchCompany() {
       try {
+        console.log(`Fetching company details for handle: ${handle}`);
         const company = await JoblyApi.getCompany(handle);
+        console.log("Fetched company data:", company); // Confirm response
         setCompany(company);
-        setFilteredJobs(company.jobs || []); // Initialize filtered jobs with all jobs
-
-        if (currentUser?.applications) {
-          setApplications(new Set(currentUser.applications));
-        }
       } catch (err) {
         console.error("Error fetching company details:", err);
       } finally {
         setIsLoading(false);
       }
     }
-
     fetchCompany();
   }, [handle, currentUser]);
-
+  
   useEffect(() => {
     // Filter jobs when the search term changes
     if (company?.jobs) {
