@@ -1,9 +1,9 @@
+
 {
-    "routes": [
-      {
-        "src": "/.*",
-        "dest": "/index.html"
-      }
-    ]
+    "routes": {
+      "/companies/*": "https://jobly-backend-ds7w.onrender.com/companies/$1",
+      "/jobs/*": "https://jobly-backend-ds7w.onrender.com/jobs/$1",
+      "/**": "/index.html"
+    }
   }
   
