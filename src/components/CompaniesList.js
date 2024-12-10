@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import JoblyApi from "../api";
 import "../App.css"; // Shared styles
 
@@ -53,9 +54,9 @@ function CompaniesList() {
         <ul>
           {companies.map((company) => (
             <li key={company.handle} className="box">
-              <a href={`/companies/${company.handle}`} className="company-name">
+              <Link to={`/companies/${company.handle}`} className="company-name">
                 {company.name}
-              </a>
+              </Link>
               <p>{company.description}</p>
             </li>
           ))}
