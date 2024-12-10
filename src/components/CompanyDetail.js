@@ -2,11 +2,11 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import JoblyApi from "../api";
 
-function CompanyDetail({ currentUser, setCurrentUser }) {
+function CompanyDetail({ currentUser }) {
   const { handle } = useParams();
   const [company, setCompany] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [applications, setApplications] = useState(new Set());
+  const [applications, setApplications] = useState(new Set()); // Track applied jobs
   const [searchTerm, setSearchTerm] = useState(""); // Track search term
   const [filteredJobs, setFilteredJobs] = useState([]); // Track filtered jobs
 
@@ -19,15 +19,22 @@ function CompanyDetail({ currentUser, setCurrentUser }) {
         const company = await JoblyApi.getCompany(handle);
         console.log("Fetched company data:", company); // Confirm response
         setCompany(company);
+        setFilteredJobs(company.jobs || []); // Initialize filtered jobs with all jobs
+
+        // Initialize applied jobs from currentUser
+        if (currentUser?.applications) {
+          setApplications(new Set(currentUser.applications));
+        }
       } catch (err) {
         console.error("Error fetching company details:", err);
       } finally {
         setIsLoading(false);
       }
     }
+
     fetchCompany();
   }, [handle, currentUser]);
-  
+
   useEffect(() => {
     // Filter jobs when the search term changes
     if (company?.jobs) {
@@ -43,32 +50,23 @@ function CompanyDetail({ currentUser, setCurrentUser }) {
   };
 
   const handleApply = async (jobId) => {
-    // Check if the jobId is valid
     if (!jobId || isNaN(jobId)) {
       console.error("Invalid jobId:", jobId);
       return;
     }
-  
-    // Check if the user has already applied for the job
-    if (applications.has(jobId)) {
-      console.warn(`User has already applied to job ${jobId}.`);
-      return; // Prevent re-applying
-    }
-  
+
     try {
-      // Make the API call to apply for the job
-      await JoblyApi.applyToJob(jobId);
-  
-      // Update the state with the newly applied job
-      setApplications(new Set([...applications, jobId]));
-  
+      await JoblyApi.applyToJob(jobId); // Apply to job via API
+      setApplications(new Set([...applications, jobId])); // Update local applications state
       console.log(`Successfully applied to job ${jobId}`);
     } catch (err) {
-      // Handle errors from the API call
       console.error("Error applying to job:", err);
     }
   };
-  
+
+  if (isLoading) return <p>Loading...</p>;
+  if (!company) return <p>Company not found.</p>;
+
   return (
     <div className="container">
       <h1>{company.name}</h1>
@@ -87,12 +85,13 @@ function CompanyDetail({ currentUser, setCurrentUser }) {
             <h3>{job.title}</h3>
             <p>Salary: {job.salary}</p>
             <p>Equity: {job.equity}</p>
-              <button
-                onClick={() => handleApply(job.id)}
-                disabled={applications.has(job.id)} // Disable button if already applied
-              >
-                {applications.has(job.id) ? "Applied" : "Apply"}
-              </button>
+            <button
+              onClick={() => handleApply(job.id)}
+              disabled={applications.has(job.id)}
+              className="form-button"
+            >
+              {applications.has(job.id) ? "Applied" : "Apply"}
+            </button>
           </li>
         ))}
       </ul>
