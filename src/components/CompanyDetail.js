@@ -43,23 +43,32 @@ function CompanyDetail({ currentUser, setCurrentUser }) {
   };
 
   const handleApply = async (jobId) => {
+    // Check if the jobId is valid
     if (!jobId || isNaN(jobId)) {
       console.error("Invalid jobId:", jobId);
       return;
     }
-
+  
+    // Check if the user has already applied for the job
+    if (applications.has(jobId)) {
+      console.warn(`User has already applied to job ${jobId}.`);
+      return; // Prevent re-applying
+    }
+  
     try {
+      // Make the API call to apply for the job
       await JoblyApi.applyToJob(jobId);
+  
+      // Update the state with the newly applied job
       setApplications(new Set([...applications, jobId]));
+  
       console.log(`Successfully applied to job ${jobId}`);
     } catch (err) {
+      // Handle errors from the API call
       console.error("Error applying to job:", err);
     }
   };
-
-  if (isLoading) return <p>Loading...</p>;
-  if (!company) return <p>Company not found.</p>;
-
+  
   return (
     <div className="container">
       <h1>{company.name}</h1>
